@@ -1,5 +1,5 @@
 const Account = require("../../models/account");
-const VerificationCode = require("../../models/VerificationCode");
+const VerificationCode = require("../../models/verificationCode");
 const userTokenType = require("./userTokenType");
 
 module.exports = async (req, res) => {
