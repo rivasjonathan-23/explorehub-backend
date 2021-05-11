@@ -96,7 +96,7 @@ module.exports.createConversation = (req, res) => {
                 let settings = { messaged: true }
                 
                 if (doc.status == "Pending" && remainingTime <= 0 || doc.status == "Pending" && !doc.messaged) {
-                    settings["timeLeft"] = currentTime.setMinutes(currentTime.getMinutes() + 1)
+                    settings["timeLeft"] = currentTime.setMinutes(currentTime.getMinutes() + 10)
                 }
                 booking.findByIdAndUpdate(req.body.booking, { $set: settings }, async function (error, result) {
                     if (error) return res.status(500).json(error.message)
@@ -159,7 +159,7 @@ module.exports.sendMessage = (req, res) => {
                         let settings = { messaged: true }
 
                         if (doc.status == "Pending" && remainingTime <= 0 || doc.status == "Pending" && !doc.messaged) {
-                            settings["timeLeft"] = currentTime.setMinutes(currentTime.getMinutes() + 1)
+                            settings["timeLeft"] = currentTime.setMinutes(currentTime.getMinutes() + 10)
                         }
                         booking.findByIdAndUpdate(req.body.notificationData.booking, { $set: settings }, function (error, result) {
                             if (error) return res.status(500).json(error.message)
