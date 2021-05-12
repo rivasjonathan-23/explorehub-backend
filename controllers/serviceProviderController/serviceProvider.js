@@ -45,6 +45,7 @@ module.exports.getServices = (req, res) => {
 module.exports.getPageBooking = (req, res) => {
     booking.find({ pageId: req.params.pageId, status: req.params.bookingStatus })
         .populate({ path: "tourist", model: "Account", select: "firstName lastName profile" })
+        .populate({ path: "pageId", model: "Page"})
         .populate({ path: "selectedServices.service", model: "Item" })
         .sort({ 'updatedAt': -1 })
         .exec((error, bookings) => {
