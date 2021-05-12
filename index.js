@@ -14,6 +14,29 @@ mongoose.connect(dbConfig.online_db, {
     useFindAndModify: false,
 });
 
+
+const allowedOrigins = [
+    'capacitor://localhost',
+    'ionic://localhost',
+    'http://localhost',
+    'http://localhost:8080',
+    'http://localhost:8100'
+  ];
+  
+  // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
+  const corsOptions = {
+    origin: (origin, callback) => {
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origin not allowed by CORS'));
+      }
+    }
+  }
+  
+  // Enable preflight requests for all routes
+  app.options('*', cors(corsOptions));
+
 var db = mongoose.connection;
 db.on("connected", () => {
     console.log("connected to database" + dbConfig.online_db);
@@ -37,12 +60,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 
-app.use("/api", require("./router/mainRouter"));
+app.use("/api",  cors(corsOptions), require("./router/mainRouter"));
 
 let port = process.env.PORT || 3000;
 if (port == null || port == "") {
     port = 3000;
-  }
+}
 
 const server = app.listen(port, () => {
     console.log(`App is listening on port ${port}`);
@@ -55,7 +78,7 @@ let io = require('socket.io')(server, {
         methods: ["GET", "POST"]
     }
 });
- 
+
 io.on('connection', (socket) => {
 
     socket.on('notify', (data) => {
