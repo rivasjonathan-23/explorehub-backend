@@ -4,7 +4,7 @@ module.exports.findAccount = async function (req, res) {
   try {
     var userAccount = await searchAccount(req.body);
     if (!userAccount) {
-      return res.status(404).json({ message: "Account was not found!" });
+      return res.status(400).json({ message: "Account was not found!" });
     }
     res.status(200).json({ frgtnAccountId: userAccount._id });
   } catch (error) {
