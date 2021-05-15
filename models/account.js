@@ -39,9 +39,12 @@ const Accountchema = new Schema(
       }
     },
     address: { type: String, required: false, trim: true },
+    address2: { type: String, required: false, trim: true },
+    city: { type: String, required: false, trim: true },
+    stateOrProvince: { type: String, required: false, trim: true },
+    country: { type: String, required: false, trim: true },
     fullName: { type: String, required: false, trim: true },
     gender: { type: String, required: false },
-    age: { type: Number, required: false },
     profile: { type: String, required: false },
     birthday: { type: String, required: false},
   },
@@ -67,7 +70,7 @@ Accountchema.statics.checkEmail = async function (value) {
 Accountchema.statics.getUserInfo = async function (id) {
   return this.findOne(
     { _id: id },
-    "accountType fullName firstName lastName middleName email contactNumber age gender address birthday password profile",
+    "accountType fullName firstName lastName middleName email contactNumber age gender address address2 city stateOrProvince country birthday password profile",
     function (err, accountInfo) {
       if (err) {
         return err;
