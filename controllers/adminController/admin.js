@@ -63,7 +63,7 @@ module.exports.getAllBookings = (req, res) => {
         .populate({ path: "tourist", model: "Account", select: "fullName address contactNumber email profile" })
         .populate({ path: "selectedServices.service", model: "Item" })
         .populate({ path: "pageId", populate: { path: "creator", model: "Account" } })
-        .sort({ 'updatedAt': 1 })
+        .sort({ 'createdAt': 1 })
         .exec((error, bookings) => {
             if (error) {
                 console.log(error)

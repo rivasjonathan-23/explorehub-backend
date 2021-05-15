@@ -38,8 +38,6 @@ module.exports.addDefaultCategories = async (req, res) => {
     if (categories.length == 0) {
       const defaults = [
         { name: "Restaurant" },
-        { name: "Small Eatery" },
-        { name: "Store" },
         { name: "Transportation" },
         { name: "Lodging" },
         { name: "Touring" }
