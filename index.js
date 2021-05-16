@@ -37,7 +37,7 @@ var publicDir = require('path').join(__dirname, '/uploads');
 app.use(express.static(publicDir));
 
 app.use(cors());
-// app.use(bodyParser.json());
+// app.use(bodyParser.json())
 // app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
 const multerMid = multer({
     storage: multer.memoryStorage(),
@@ -65,7 +65,7 @@ const server = app.listen(port, () => {
 let io = require('socket.io')(server, {
 
     cors: {
-        origin: ["http://localhost:4200", 'capacitor://localhost', 'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
+        origin: ["http://localhost:4200",'http://localhost', 'capacitor://localhost', 'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
         methods: ["GET", "POST"]
     }
 });
