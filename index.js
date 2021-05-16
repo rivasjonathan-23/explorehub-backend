@@ -17,10 +17,6 @@ mongoose.connect(dbConfig.online_db, {
 
 
 
-
-
-
-
 var db = mongoose.connection;
 db.on("connected", () => {
     console.log("connected to database" + dbConfig.online_db);
@@ -51,7 +47,6 @@ const multerMid = multer({
     },
 })
 
-app.disable('x-powered-by')
 app.use(multerMid.single('image'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
@@ -70,7 +65,7 @@ const server = app.listen(port, () => {
 let io = require('socket.io')(server, {
 
     cors: {
-        origin: ["http://localhost:4200", "http://localhost:3000", 'capacitor://localhost', 'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
+        origin: ["http://localhost:4200", 'capacitor://localhost', 'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
         methods: ["GET", "POST"]
     }
 });
