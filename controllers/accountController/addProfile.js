@@ -11,14 +11,11 @@ const deletePhoto = (image) => {
 module.exports = async (req, res) => {
   try { 
 
-    console.log("REQUEST BODY PROFILE: ", req.body)
-    console.log("REQUEST USER: ", req.user)
 
-    console.log("file: :",req.file)
 
     deletePhoto(req.body.profile);
-    
-    const userAddProfile = await Account.addProfile(req.user._id, req.file.filename );
+    const savedImage =  await saveImageToCloud(req.file);
+    const userAddProfile = await Account.addProfile(req.user._id, savedImage );
     if (!userAddProfile) {
       return res.status(404).json({ message: "Failed to delete profile!" });
     }

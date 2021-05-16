@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const morgan = require("morgan");
 require("dotenv").config();
+const multer = require('multer')
 
 mongoose.set("useCreateIndex", true);
 mongoose.connect(dbConfig.online_db, {
@@ -17,29 +18,6 @@ mongoose.connect(dbConfig.online_db, {
 
 
 
-// const allowedOrigins = [
-//     'capacitor://localhost',
-//     'ionic://localhost',
-//     'http://localhost',
-//     'http://localhost:8080',
-//     'http://localhost:4200',
-//     "https://admin-frontend-lyart.vercel.app"
-//   ];
-  
-//   // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
-//   const corsOptions = {
-//     origin: (origin, callback) => {
-//       if (allowedOrigins.includes(origin) || !origin) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error('Origin not allowed by CORS'));
-//       }
-//     }
-//   }
-  
-//   // Enable preflight requests for all routes
-//   app.options('*', cors(corsOptions));
-  
 
 
 
@@ -63,8 +41,20 @@ var publicDir = require('path').join(__dirname, '/uploads');
 app.use(express.static(publicDir));
 
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
+const multerMid = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        // no larger than 5mb.
+        fileSize: 5 * 1024 * 1024,
+    },
+})
+
+app.disable('x-powered-by')
+app.use(multerMid.single('image'))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}))
 
 app.use("/api", require("./router/mainRouter"));
 
@@ -80,7 +70,7 @@ const server = app.listen(port, () => {
 let io = require('socket.io')(server, {
 
     cors: {
-        origin: ["http://localhost:4200", "http://localhost",'capacitor://localhost',  'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
+        origin: ["http://localhost:4200", "http://localhost:3000", 'capacitor://localhost', 'ionic://localhost', "https://admin-frontend-lyart.vercel.app"],
         methods: ["GET", "POST"]
     }
 });

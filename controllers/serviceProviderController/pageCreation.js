@@ -10,6 +10,7 @@ const { Item } = require("../../models/item");
 const Page = require("../../models/page");
 const account = require("../../models/account");
 const bcrypt = require("bcryptjs");
+const { saveImageToCloud } = require("../../Helpers/saveImageToCloud");
 
 module.exports.addComponent = (req, res) => {
   // const Pages = req.params.pageType == "service" ? servicePage : touristSpotPage
@@ -109,17 +110,22 @@ module.exports.addServiceChildComponent = async (req, res) => {
   }
 }
 
-module.exports.addComponentImage = (req, res) => {
-  // const Pages = req.params.pageType == "service" ? servicePage : touristSpotPage
-  const newImage = new ImageModel({ url: process.env.HOST + req.file.filename });
-  helper.editComponent(Page, { "_id": req.params.parentId, "components._id": req.params.childId },
+module.exports.addComponentImage = async (req, res) => {
+  try {
+    const savedImage =  await saveImageToCloud(req.file);
+    const newImage = new ImageModel({ url: savedImage });
+    helper.editComponent(Page, { "_id": req.params.parentId, "components._id": req.params.childId },
     { $push: { "components.$.data": newImage } }, res, newImage);
+  } catch (erro) {
+    console.log(erro.message);
+    res.status(500).json(erro)
+  }
 }
 
-module.exports.addItemChildComponentImage = (req, res) => {
+module.exports.addItemChildComponentImage = async (req, res) => {
   try {
-    // const Pages = req.params.pageType == "service" ? servicePage : touristSpotPage
-    const newImage = new ImageModel({ url: process.env.HOST + req.file.filename });
+    const savedImage =  await saveImageToCloud(req.file);
+    const newImage = new ImageModel({ url: savedImage });
     Item.updateOne({ "_id": mongoose.Types.ObjectId(req.params.parentId) },
       {
         $push: {
