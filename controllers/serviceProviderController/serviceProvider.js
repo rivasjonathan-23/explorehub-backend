@@ -12,7 +12,7 @@ module.exports.getPages = async (req, res) => {
     try {
         let cond = { creator: { $eq: mongoose.Types.ObjectId(req.user._id) }, pageType: { $ne: "service_group" }, status: { $eq: 'Unfinished' } }
         if (req.params.status == "submitted") cond.status = { $ne: 'Unfinished' }
-        const services = await Page.aggregate([{ $match: cond }]);
+        const services = await Page.aggregate([{ $match: cond },  { $lookup: { from: 'items', localField: 'services.data', foreignField: '_id', as: 'pageServices' } }]);
         res.status(200).json(services)
     } catch (error) {
         res.status(500).json(error.message)
