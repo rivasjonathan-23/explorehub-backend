@@ -306,7 +306,7 @@ module.exports.getBookings = (req, res) => {
 module.exports.viewBooking = (req, res) => {
     booking.findOne({ _id: req.params.bookingId })
         // .populate({ path: "pageId", model: "Page" })
-        .populate({ path: "pageId", populate: { path: "creator", model: "Account", select: "fullName firstName lastName"}})
+        .populate({ path: "pageId", populate: { path: "creator", model: "Account", select: "fullName firstName lastName contactNumber email"}})
         .populate({ path: "selectedServices.service", model: "Item" })
         .populate({ path: "tourist", model: "Account", select: "firstName lastName email contactNumber address address2 city stateOrProvince country fullName profile" })
         .exec((error, bookings) => {
