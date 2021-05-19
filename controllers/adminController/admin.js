@@ -275,7 +275,7 @@ module.exports.setPageStatus = async (req, res) => {
                                     console.log(existingCategory)
                                     if (!existingCategory) {
                                         let request = req
-                                        request['body'] = { name: data.data.text };
+                                        request['body'] = { name: data.data.text, touristSpots: [mongoose.Types.ObjectId(req.body.page)] };
                                         request['continue'] = true;
                                         const resultAdding = await addTouristSpotCategory(request, res)
                                         console.log("Result adding:-----", resultAdding)

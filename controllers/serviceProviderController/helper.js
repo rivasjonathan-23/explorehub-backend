@@ -4,6 +4,7 @@ const { Item } = require("../../models/item");
 const notification = require("../../models/notification");
 const notificationGroup = require("../../models/notificationGroup");
 const Page = require("../../models/page");
+const touristSpotCategory = require("../../models/touristSpotCategory");
 const deleteImage = require("../../uploads/deleteImage");
 
 const addComponent = (model, touristSpotId, res, data, returnData = true) => {
@@ -46,7 +47,33 @@ module.exports.editComponent = (model, query, data, res, newData, deleteImg = nu
     data)
     .then(result => {
       if (deleteImg) deleteImg(newData.imageUrl)
-      res.status(200).json(newData);
+      if (newData && newData.data && newData.data.defaultName == "category") {
+
+
+        touristSpotCategory.updateMany({},
+          {
+            $pull:
+              { 'touristSpots': mongoose.Types.ObjectId(query._id) }
+          }
+        ).then(result => {
+          if (newData.data.referenceId) {
+            touristSpotCategory.findByIdAndUpdate(mongoose.Types.ObjectId(newData.data.referenceId), {
+              $push: {
+                touristSpots: mongoose.Types.ObjectId(query._id)
+              }
+            }).then(resulta => {
+
+              res.status(200).json(resulta);
+            })
+
+          } else {
+            res.status(200).json(result);
+          }
+        })
+      } else {
+
+        res.status(200).json(newData);
+      }
     }).catch(error => {
       res.status(500).json({ type: 'internal_error!', error: error.message });
     })

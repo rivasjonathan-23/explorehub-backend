@@ -15,6 +15,7 @@ const TouristSpotCategory = new Schema(
       ref: "Account",
       required: [true, "Category should have a creator"],
     },
+    touristSpots: [{type: Schema.Types.ObjectId, ref: "Page", required: false}],
     touristSpotTotalCount: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
@@ -25,6 +26,7 @@ TouristSpotCategory.statics.addTouristSpotCategory = async function (
 ) {
   const newTouristSpotCategory = new this(touristSpotCategory);
   let result;
+  console.log("NEW TOURIST SPOT CATEGORY::::: "+ newTouristSpotCategory)
   let error = newTouristSpotCategory.validateSync();
 
   if (error) {
