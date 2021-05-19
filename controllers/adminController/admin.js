@@ -198,7 +198,7 @@ module.exports.setBookingStatus = async(req, res) => {
         settings.timeLeft = date.setMinutes(date.getMinutes() + 20);
     }
     booking.findByIdAndUpdate({ _id: req.body.bookingId }, { $set: settings }, { new: true })
-        .populate({ path: "tourist", model: "Account", select: "firstName lastName address profile" })
+        .populate({ path: "tourist", model: "Account", select: "firstName lastName address address2 city stateOrProvince country profile" })
         .exec(async (err, data) => {
 
             if (err) {

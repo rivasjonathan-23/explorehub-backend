@@ -250,7 +250,7 @@ module.exports.submitBooking = async (req, res) => {
 
                         booking.selectedServices.forEach(service => {
                             Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, function (error, doc) {
-                                
+
                                 doc.pending = doc.pending + service.quantity;
 
                                 let quantity = getValue(doc.data, 'quantity')
@@ -261,7 +261,7 @@ module.exports.submitBooking = async (req, res) => {
                                 } else {
                                     doc.save()
                                 }
-                                
+
                                 if (service._id == booking.selectedServices[booking.selectedServices.length - 1]._id) {
                                     res.status(200).json(booking)
                                 }
@@ -308,7 +308,7 @@ module.exports.viewBooking = (req, res) => {
         .populate({ path: "pageId", model: "Page" })
         // .populate({path:"pageId", populate: { path: "creator", model: "Account", select: "fullName"}})
         .populate({ path: "selectedServices.service", model: "Item" })
-        .populate({ path: "tourist", model: "Account", select: "firstName lastName email contactNumber address fullName profile" })
+        .populate({ path: "tourist", model: "Account", select: "firstName lastName email contactNumber address address2 city stateOrProvince country fullName profile" })
         .exec((error, bookings) => {
             if (error) {
                 return res.status(500).json(error.message);
@@ -500,8 +500,9 @@ module.exports.searchTouristSpot = (req, res) => {
 }
 
 module.exports.getAllCategories = (req, res) => {
-    touristSpotCategory.find({}).populate({path: "touristSpots", model: "Page", match: { status: 'Online' }
-}).exec((error, categories) => {
+    touristSpotCategory.find({}).populate({
+        path: "touristSpots", model: "Page", match: { status: 'Online' }
+    }).exec((error, categories) => {
         if (error) res.status(500).json(error.status)
         res.status(200).json({ categories: categories })
     })
