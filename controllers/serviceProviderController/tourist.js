@@ -500,7 +500,8 @@ module.exports.searchTouristSpot = (req, res) => {
 }
 
 module.exports.getAllCategories = (req, res) => {
-    touristSpotCategory.find({}).populate({path: "touristSpots", model: "Page"}).exec((error, categories) => {
+    touristSpotCategory.find({}).populate({path: "touristSpots", model: "Page", match: { status: 'Online' }
+}).exec((error, categories) => {
         if (error) res.status(500).json(error.status)
         res.status(200).json({ categories: categories })
     })
