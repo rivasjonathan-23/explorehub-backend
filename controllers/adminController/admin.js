@@ -60,7 +60,7 @@ module.exports.pusher = (req, res) => {
 
 module.exports.getAllBookings = (req, res) => {
     booking.find({ status: req.params.bookingStatus })
-        .populate({ path: "tourist", model: "Account", select: "fullName address contactNumber email profile" })
+        .populate({ path: "tourist", model: "Account", select: "fullName firstName lastName address contactNumber email profile" })
         .populate({ path: "selectedServices.service", model: "Item" })
         .populate({ path: "pageId", populate: { path: "creator", model: "Account" } })
         .sort({ 'createdAt': 1 })
@@ -138,7 +138,7 @@ module.exports.getAllPendingNotifications = (req, res) => {
     }
     Page.find(cond)
         .populate({ path: "hostTouristSpot", model: "Page" })
-        .populate({ path: "creator", model: "Account", select: "fullName profile" })
+        .populate({ path: "creator", model: "Account", select: "fullName firstName lastName profile" })
         .populate({ path: "services.data", model: "Item" })
         .exec((err, pages) => {
 

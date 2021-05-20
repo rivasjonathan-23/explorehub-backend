@@ -132,6 +132,8 @@ Accountchema.statics.generateJwt = async function (user, type) {
         email: user.email,
         admin: adminId,
         fullName: user.fullName,
+        firstName: user.firstName, 
+        lastName: user.lastName,
         accountType: user.accountType,
         gender: user.gender,
         profile: user.profile,

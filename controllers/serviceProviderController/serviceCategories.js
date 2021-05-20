@@ -58,7 +58,7 @@ module.exports.addDefaultCategories = async (req, res) => {
 module.exports.retrieveAllToristSpotCategories = async (req, res) => {
   serviceCategory
     .find({}, "name touristSpotTotalCount addedBy")
-    .populate("addedBy", "fullName")
+    .populate("addedBy", "fullName firstName lastName")
     .exec((error, categories) => {
       if (error) {
         res.status(400).json({
