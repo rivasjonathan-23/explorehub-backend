@@ -4,6 +4,7 @@ const booking = require("../../models/booking");
 const { messageModel } = require("../../models/commonSchemas/message");
 const conversation = require("../../models/conversation");
 const notification = require("../../models/notification");
+const notificationGroup = require("../../models/notificationGroup");
 const Page = require("../../models/page");
 const helper = require("./helper");
 
@@ -12,7 +13,7 @@ module.exports.getPages = async (req, res) => {
     try {
         let cond = { creator: { $eq: mongoose.Types.ObjectId(req.user._id) }, pageType: { $ne: "service_group" }, status: { $eq: 'Unfinished' } }
         if (req.params.status == "submitted") cond.status = { $ne: 'Unfinished' }
-        const services = await Page.aggregate([{ $match: cond },  { $lookup: { from: 'items', localField: 'services.data', foreignField: '_id', as: 'pageServices' } }]);
+        const services = await Page.aggregate([{ $match: cond }, { $lookup: { from: 'items', localField: 'services.data', foreignField: '_id', as: 'pageServices' } }]);
         res.status(200).json(services)
     } catch (error) {
         res.status(500).json(error.message)
@@ -45,7 +46,7 @@ module.exports.getServices = (req, res) => {
 module.exports.getPageBooking = (req, res) => {
     booking.find({ pageId: req.params.pageId, status: req.params.bookingStatus })
         .populate({ path: "tourist", model: "Account", select: "firstName lastName profile" })
-        .populate({ path: "pageId", model: "Page"})
+        .populate({ path: "pageId", model: "Page" })
         .populate({ path: "selectedServices.service", model: "Item" })
         .sort({ 'updatedAt': -1 })
         .exec((error, bookings) => {
@@ -85,17 +86,17 @@ module.exports.createConversation = (req, res) => {
     message.save().then(async (message) => {
         try {
             data.notificationData["conversation"] = message._id
-            
+
             if (req.body.booking && req.body.fromAdmin) {
-                const doc  = await booking.findById(req.body.booking)
+                const doc = await booking.findById(req.body.booking)
                 const currentTime = new Date();
                 let remainingTime = 0
                 if (doc.timeLeft) {
                     remainingTime = doc.timeLeft - currentTime;
                 }
-                
+
                 let settings = { messaged: true }
-                
+
                 if (doc.status == "Pending" && remainingTime <= 0 || doc.status == "Pending" && !doc.messaged) {
                     settings["timeLeft"] = currentTime.setMinutes(currentTime.getMinutes() + 10)
                 }
@@ -106,7 +107,7 @@ module.exports.createConversation = (req, res) => {
             } else {
                 await helper.createNotification(data.notificationData)
             }
-                
+
         } catch (error) {
         }
         res.status(200).json(message);
@@ -281,7 +282,7 @@ module.exports.getConvoForPageSubmission = (req, res) => {
 module.exports.createConvoForPageSubmission = (req, res) => {
     const data = req.body
     const fullName = req.user && req.user.username && !req.user.fullName ? "Admin" : req.user.fullName
-    const firstMessage = new messageModel({ sender: req.user._id,withMedia: data.withMedia? true: false, senderFullName: fullName, message: data.message })
+    const firstMessage = new messageModel({ sender: req.user._id, withMedia: data.withMedia ? true : false, senderFullName: fullName, message: data.message })
     const message = new conversation({
         booking: data.booking,
         page: data.page,
@@ -372,5 +373,31 @@ module.exports.getPageActiveBookings = async (req, res) => {
         console.log(error)
         res.status(500).json(error.message)
     }
+}
+
+module.exports.deleteNotification = (req, res) => {
+    notification.deleteOne({ _id: req.params.notificationId }).then(result => {
+        res.status(200).json(result)
+    }).catch(error => {
+        console.log(error.message)
+
+        res.status(500).json(error.message) 
+    })
+}
+
+module.exports.deleteNotificationGroup = (req, res) => {
+    notificationGroup.findOneAndDelete({ _id: req.params.notificationGroupId }).then(result => {
+        console.log("NOTIFICATION GROUP::::: ", result)
+        notification.deleteMany({ _id: { $in: result.notifications } }).then(result2 => {
+            res.status(200).json(result2)
+        }).catch(error => {
+        console.log(error.message)
+
+            res.status(500).json(error.message)
+        })
+    }).catch(error => {
+        console.log(error.message)
+        res.status(500).json(error.message)
+    })
 }
 

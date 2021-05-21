@@ -268,13 +268,16 @@ function createNotification(data) {
         firstNotif["notificationGroup"] = notifGroup._id
         notificationGroup.updateOne(query, {
           $push: {
-            notifications: firstNotif._id
+            notifications: {
+              $each: [firstNotif._id],
+              $position: 0
+            }
           }
         }).then(async (result) => {
 
           if (!data.isMessage) {
             await firstNotif.save();
-            notifGroup.notifications.push(firstNotif)
+            notifGroup.notifications.unshift(firstNotif)
             resolve(notifGroup)
           } else {
             notification.findOneAndUpdate({ receiver: data.receiver, sender: data.sender, subject: data.subject, isMessage: true, notificationGroup: notifGroup._id },

@@ -331,7 +331,7 @@ module.exports.deleteBooking = (req, res) => {
 module.exports.getNotifications = (req, res) => {
     // const condition = req.user.username ? {} : { receiver: req.user._id }
     notificationGroup.find({ receiver: req.user._id })
-        .populate({ path: 'notifications', model: 'Notification' })
+        .populate({ path: 'notifications', model: 'Notification', options: { sort: {updatedAt : -1}} })
         .populate({ path: 'page', model: 'Page' })
         .populate({ path: 'mainReceiver', model: 'Account' })
         .populate({ path: 'booking', model: 'Booking' })
