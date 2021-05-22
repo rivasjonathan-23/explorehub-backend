@@ -457,9 +457,9 @@ async function makePage(req, res, pageNameInputLabel, service, hostTouristSpot, 
     //default components for tourist spot's information
     const photo = new ComponentModel({ type: "photo", data: [], styles: [], default: true })
     const pageName = new ComponentModel({ type: "text", data: { placeholder: pageNameInputLabel, text: null, defaultName: 'pageName' }, styles: ["bg-light", "text-left", "font-large", "fontStyle-bold", "color-dark"], default: true })
-    const barangay = new ComponentModel({ type: "labelled-text", data: { label: "Barangay", text: null, defaultName: 'barangay' }, styles: [], default: true })
-    const municipality = new ComponentModel({ type: "labelled-text", data: { label: "Municipality", text: service ? hostTouristSpot.municipality : 'Moalboal', defaultName: 'municipality' }, styles: [], default: true })
-    const province = new ComponentModel({ type: "labelled-text", data: { label: "Province", text: service ? hostTouristSpot.city : "Cebu", defaultName: "province" }, styles: [], default: true })
+    const barangay = new ComponentModel({ type: "labelled-text", data: { label: "Street / Barangay / District", text: null, defaultName: 'barangay' }, styles: [], default: true })
+    const municipality = new ComponentModel({ type: "labelled-text", data: { label: "Municipality / City", text: service ? hostTouristSpot.municipality : 'Moalboal', defaultName: 'municipality' }, styles: [], default: true })
+    const province = new ComponentModel({ type: "labelled-text", data: { label: "Province / State", text: service ? hostTouristSpot.city : "Cebu", defaultName: "province" }, styles: [], default: true })
     const category = new ComponentModel({ type: "labelled-text", data: { label: "Category", text: null, defaultName: 'category' }, styles: [], default: true })
     const description = new ComponentModel({ type: "text", data: { placeholder: "Enter description here", text: null, defaultName: 'description' }, styles: ["bg-white", "text-left", "font-normal", "fontStyle-normal", "color-light"], default: true })
 
