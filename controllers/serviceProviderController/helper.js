@@ -4,6 +4,7 @@ const { Item } = require("../../models/item");
 const notification = require("../../models/notification");
 const notificationGroup = require("../../models/notificationGroup");
 const Page = require("../../models/page");
+const serviceCategory = require("../../models/serviceCategory");
 const touristSpotCategory = require("../../models/touristSpotCategory");
 const deleteImage = require("../../uploads/deleteImage");
 
@@ -47,17 +48,17 @@ module.exports.editComponent = (model, query, data, res, newData, deleteImg = nu
     data)
     .then(result => {
       if (deleteImg) deleteImg(newData.imageUrl)
-      if (newData && newData.data && newData.data.defaultName == "category") {
-
-
-        touristSpotCategory.updateMany({},
+      if (newData && newData.data.pageType && newData.data && newData.data.defaultName == "category") {
+        console.log(newData.pageType)
+        const categoryModel = newData.data.pageType == "service"?   serviceCategory: touristSpotCategory
+        categoryModel.updateMany({},
           {
             $pull:
               { 'touristSpots': mongoose.Types.ObjectId(query._id) }
           }
         ).then(result => {
           if (newData.data.referenceId) {
-            touristSpotCategory.findByIdAndUpdate(mongoose.Types.ObjectId(newData.data.referenceId), {
+            categoryModel.findByIdAndUpdate(mongoose.Types.ObjectId(newData.data.referenceId), {
               $push: {
                 touristSpots: mongoose.Types.ObjectId(query._id)
               }

@@ -78,7 +78,7 @@ module.exports.saveItem = async (req, res) => {
       newItem.data = item.data;
     }
     await newItem.save()
-
+    newItem["pageType"] = req.params.pageType
     helper.editComponent(Page, { "_id": req.params.parentId, "services._id": req.params.serviceId },
       { $push: { "services.$.data": newItem._id } }, res, newItem);
   } catch (error) {
@@ -289,8 +289,8 @@ module.exports.editComponent = async (req, res) => {
     const validComponent = await ComponentModel.validate(req.body);
     if (validComponent.type == "photo") {
       validComponent.data = helper.convertIdToObjectId(validComponent);
-    } else {
-    }
+    } 
+    validComponent.data["pageType"] = req.params.pageType
     helper.editComponent(Page, { "_id": req.params.id, "components._id": req.body._id },
       {
         $set: {

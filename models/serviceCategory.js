@@ -15,6 +15,7 @@ const ServiceCategory = new Schema(
       ref: "Account",
       required: [true, "Category should have a creator"],
     },
+    touristSpots: [{type: Schema.Types.ObjectId, ref: "Page", required: false}],
     serviceTotalCount: { type: Number, required: false, default: 0 },
   },
   { timestamps: true }
