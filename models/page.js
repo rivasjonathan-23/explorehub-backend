@@ -13,6 +13,8 @@ const Page = new Schema(
     services: [service],
     otherServices: [{ type: Schema.Types.ObjectId, ref: "Page" }],
     bookingInfo: [Component],
+    hidePage:{type: Boolean, required: false, default: false},
+    beBackOn: {type: String, required: false},
     initialStatus: { type: String, enum: ['Approved', 'Declined', 'Pending'], required: false, default: 'Pending' },
     status: { type: String, enum: ['Unfinished', 'Pending', 'Processing', 'Online', 'Rejected', 'Not Operating'], required: false, default: 'Unfinished' }
   },

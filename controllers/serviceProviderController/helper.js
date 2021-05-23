@@ -48,8 +48,7 @@ module.exports.editComponent = (model, query, data, res, newData, deleteImg = nu
     data)
     .then(result => {
       if (deleteImg) deleteImg(newData.imageUrl)
-      if (newData && newData.data.pageType && newData.data && newData.data.defaultName == "category") {
-        console.log(newData.pageType)
+      if (newData.data && newData.data.pageType && newData.data.defaultName == "category") {
         const categoryModel = newData.data.pageType == "service"?   serviceCategory: touristSpotCategory
         categoryModel.updateMany({},
           {

@@ -436,7 +436,7 @@ module.exports.getDefaultCategories = async (req, res) => {
     defaultCategories = await serviceCategoriesCrud.addDefaultCategories(req, res);
   } else {
     defaultCategories = await touristSpotCategoriesCrud.addDefaultCategories(req, res);
-  }
+  } 
   res.status(200).json(defaultCategories)
 }
 
@@ -449,9 +449,11 @@ async function makePage(req, res, pageNameInputLabel, service, hostTouristSpot, 
 
     const serviceInfoDefault = new Item({ type: "text", serviceId: defaultService._id, data: { placeholder: "Enter service name or other info here", text: null, defaultName: "name" }, styles: ["bg-light", "text-center", "font-medium", "fontStyle-bold", "color-dark"], default: true })
     const item = makeDefaultItem();
+    const item2 = makeDefaultItem();
     item.serviceId = defaultService._id;
+    item2.serviceId = defaultService._id;
 
-    defaultService.data = [serviceInfoDefault._id, item._id]
+    defaultService.data = [serviceInfoDefault._id, item._id, item2._id]
 
 
     //default components for tourist spot's information
@@ -467,15 +469,17 @@ async function makePage(req, res, pageNameInputLabel, service, hostTouristSpot, 
     let currentYear = new Date().getFullYear()
     const arrival = new ComponentModel({ type: "date-input", data: { label: "Arrival date", instructions: null, required: true, defaultValue: null, value: null, customYears: [currentYear + 1, currentYear], customMonths: [], customDays: [], customDates: [] }, styles: [], default: false })
     const departure = new ComponentModel({ type: "date-input", data: { label: "Departure date", instructions: null, required: true, defaultValue: null, value: null, customYears: [currentYear + 1, currentYear], customMonths: [], customDays: [], customDates: [] }, styles: [], default: false })
-    const adults = new ComponentModel({ type: "number-input", data: { label: "Number of adults", instructions: null, required: true, defaultValue: null, min: 0, max: null }, styles: [], default: false })
-    const children = new ComponentModel({ type: "number-input", data: { label: "Number of children", instructions: null, required: true, defaultValue: null, min: 0, max: null }, styles: [], default: false })
+    // const adults = new ComponentModel({ type: "number-input", data: { label: "Number of adults", instructions: null, required: true, defaultValue: null, min: 0, max: null }, styles: [], default: false })
+    // const children = new ComponentModel({ type: "number-input", data: { label: "Number of children", instructions: null, required: true, defaultValue: null, min: 0, max: null }, styles: [], default: false })
 
 
     const defaultComponents = [photo, pageName, barangay, municipality, province, category, description];
-    const page = new Page({ creator: req.user._id, pageType: pageType, components: defaultComponents, initialStatus: "Approved", services: defaultService, bookingInfo: [arrival, departure, adults, children] });
+    const page = new Page({ creator: req.user._id, pageType: pageType, components: defaultComponents, initialStatus: "Approved", services: defaultService, bookingInfo: [arrival, departure] });
     item.pageId = page._id;
+    item2.pageId = page._id;
     serviceInfoDefault["pageId"] = page._id;
     await item.save()
+    await item2.save()
     await serviceInfoDefault.save();
     if (service) {
       page['hostTouristSpot'] = hostTouristSpot._id;

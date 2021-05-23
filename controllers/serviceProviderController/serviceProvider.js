@@ -203,7 +203,9 @@ module.exports.changePageStatus = (req, res) => {
         _id: req.body.pageId
     }, {
         $set: {
-            status: req.body.status
+            status: req.body.status,
+            hidePage: req.body.hidePage,
+            beBackOn: req.body.date
         }
     }, function (error, response) {
         if (error) {

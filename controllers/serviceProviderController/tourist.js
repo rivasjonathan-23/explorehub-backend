@@ -17,20 +17,20 @@ module.exports.getOnlinePages = async (req, res) => {
         $or: [
             {
                 status: 'Online', pageType: { $ne: "service" },
-                "components.data.text": { "$regex": req.params.category, "$options": "i" }
+                "components.data.text": { "$regex": req.params.category, "$options": "i" }, hidePage: false
             },
             {
                 status: 'Not Operating',
-                "components.data.text": { "$regex": req.params.category, "$options": "i" }
+                "components.data.text": { "$regex": req.params.category, "$options": "i" }, hidePage: false
             }
         ]
     } : {
         $or: [
             {
-                status: 'Online', pageType: { $ne: "service" },
+                status: 'Online', pageType: { $ne: "service" }, hidePage: false,
             },
             {
-                status: 'Not Operating', pageType: { $ne: "service" },
+                status: 'Not Operating', pageType: { $ne: "service" }, hidePage: false,
             }
         ]
     }
@@ -491,7 +491,8 @@ module.exports.searchTouristSpot = (req, res) => {
         "components.data.text": { "$regex": req.body.pageName, "$options": "i" },
         "components.data.defaultName": "pageName",
         "pageType": { $ne: "service_group" },
-        status: "Online"
+        status: "Online",
+        hidePage: false
     }).then(pages => {
         res.status(200).json(pages)
     }).catch(error => {
