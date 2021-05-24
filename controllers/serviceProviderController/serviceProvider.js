@@ -32,6 +32,35 @@ module.exports.getPage = async (req, res) => {
     })
 }
 
+module.exports.getPageWithBookingStats = async (req, res) => {
+    Page.findOne({ _id: req.params.pageId }).populate({ path: "otherServices", model: "Page" }).exec((error, page) => {
+        if (error) {
+            return res.status(500).json(error.message)
+        }
+        if (!page) {
+            return res.status(404).json({ message: "Page not found!" })
+        }
+
+        booking.aggregate(
+            [{
+                $match: {
+                    $or: [
+                        { pageId: mongoose.Types.ObjectId(req.params.pageId), status: "Processing" },
+                        { pageId: mongoose.Types.ObjectId(req.params.pageId), status: "Booked" },
+                        { pageId: mongoose.Types.ObjectId(req.params.pageId), status: "Pending" }
+                    ]
+                }
+            }, { "$group": { _id: "$status", count: { $sum: 1 } } }
+            ]).exec((error, bookings) => {
+                if (error) return res.status(500).json(error.message);
+                res.status(200).json({ page: page, bookings: bookings })
+
+            })
+    })
+}
+
+
+
 module.exports.getServices = (req, res) => {
     Page.findOne({ _id: req.params.pageId }, { services: 1 })
         .populate({ path: "services.data", model: "Item" })
@@ -383,7 +412,7 @@ module.exports.deleteNotification = (req, res) => {
     }).catch(error => {
         console.log(error.message)
 
-        res.status(500).json(error.message) 
+        res.status(500).json(error.message)
     })
 }
 
@@ -393,7 +422,7 @@ module.exports.deleteNotificationGroup = (req, res) => {
         notification.deleteMany({ _id: { $in: result.notifications } }).then(result2 => {
             res.status(200).json(result2)
         }).catch(error => {
-        console.log(error.message)
+            console.log(error.message)
 
             res.status(500).json(error.message)
         })

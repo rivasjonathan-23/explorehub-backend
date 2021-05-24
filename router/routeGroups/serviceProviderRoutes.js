@@ -58,6 +58,7 @@ router.post("/deleteConfirmedPage/:pageId/:pageType", pageCreation.deletePage)
 router.get("/getPageActiveBookings/:pageId", serviceProvider.getPageActiveBookings)
 router.delete("/deleteNotification/:notificationId", serviceProvider.deleteNotification)
 router.delete("/deleteNotificationGroup/:notificationGroupId", serviceProvider.deleteNotificationGroup)
+router.get("/getPageWithBookingStats/:pageId", serviceProvider.getPageWithBookingStats)
 
 router.get("/getOnlinePages/:category", tourist.getOnlinePages)
 router.get("/viewPage/:pageId/:pageType", tourist.viewPage)
