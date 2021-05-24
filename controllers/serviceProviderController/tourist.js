@@ -193,95 +193,87 @@ module.exports.getPageBookingInfo = async (req, res) => {
 }
 
 module.exports.submitBooking = async (req, res) => {
-    try {
-        const adminAcc = await adminAccount.find({})
-        const admin = adminAcc.length > 0 ? adminAcc[0] : { _id: "605839a8268f4b69047e4bb1" }
-        console.log(admin)
-        if (req.body.isManual) {
-            if (req.body.selectedServices) {
-                req.body.selectedServices.forEach(service => {
-                    Item.updateOne({
-                        _id: mongoose.Types.ObjectId(service._id)
-                    }, {
-                        $set: {
-                            manuallyBooked: service.manuallyBooked
-                        }
-                    }).then(result => {
-                        console.log("updated item ", service)
-                    }).catch(error => {
-                        return res.status(500).json(error.message)
-                    })
-                })
-            }
-        } else {
-            const message = req.body.resubmitted ? `${req.user.fullName} resubmitted his booking` : `${req.user.fullName} submitted a booking`
-            await helper.createNotification({
-                receiver: req.body.receiver,
-                mainReceiver: req.user._id,
-                page: req.body.page,
-                booking: req.body.booking,
-                type: req.body.type,
-                message: message
-            })
-            await helper.createNotification({
-                receiver: admin._id,
-                mainReceiver: req.user._id,
-                page: req.body.page,
-                booking: req.body.booking,
-                type: req.body.type,
-                message: message
-            })
-        }
-        const status = req.body.isManual ? "Booked" : "Pending"
-        const currentTime = new Date();
-        const timeLeft = currentTime.setMinutes(currentTime.getMinutes() - 30)
-        booking.findOneAndUpdate({ _id: req.params.bookingId },
-            {
-                $set: {
-                    status: status,
-                    timeLeft: timeLeft
-                }
-            }).then((booking, error) => {
-                if (error) {
-                    return res.status(500).json(error.message);
-                }
-                if (!req.body.isManual) {
-                    if (booking.selectedServices.length) {
+    booking.findOne({ _id: req.params.bookingId }).then(nbooking => {
 
-                        booking.selectedServices.forEach(service => {
-                            Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, function (error, doc) {
+        if (nbooking.selectedServices.length) {
 
-                                doc.pending = doc.pending + service.quantity;
-
-                                let quantity = getValue(doc.data, 'quantity')
-                                quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
-                                if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
-                                    const name = getValue(doc.data, 'name')
-                                    return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
-                                } else {
-                                    doc.save()
-                                }
-
-                                if (service._id == booking.selectedServices[booking.selectedServices.length - 1]._id) {
-                                    res.status(200).json(booking)
-                                }
-                            })
-                        })
+            nbooking.selectedServices.forEach(service => {
+                Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, async function (error, doc) {
+                    if (nbooking.isManual) {
+                        doc.manuallyBooked = doc.manuallyBooked + service.quantity
                     } else {
-                        res.status(200).json(booking)
+                        doc.pending = doc.pending + service.quantity;
                     }
-                }
-                else {
 
-                    res.status(200).json(booking)
-                }
+                    let quantity = getValue(doc.data, 'quantity')
+                    quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
+                    if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
+                        const name = getValue(doc.data, 'name')
+                        return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
+                    } else {
+                        try {
+                            if (!nbooking.isManual) {
+                                const adminAcc = await adminAccount.find({})
+                                const admin = adminAcc.length > 0 ? adminAcc[0] : { _id: "605839a8268f4b69047e4bb1" }
+                                console.log(admin)
+                                const message = req.body.resubmitted ? `${req.user.fullName} resubmitted his booking` : `${req.user.fullName} submitted a booking`
+                                await helper.createNotification({
+                                    receiver: req.body.receiver,
+                                    mainReceiver: req.user._id,
+                                    page: req.body.page,
+                                    booking: req.body.booking,
+                                    type: req.body.type,
+                                    message: message
+                                })
+                                await helper.createNotification({
+                                    receiver: admin._id,
+                                    mainReceiver: req.user._id,
+                                    page: req.body.page,
+                                    booking: req.body.booking,
+                                    type: req.body.type,
+                                    message: message
+                                })
+                            }
+                            doc.save()
 
+                        } catch (error) {
+                            res.status(500).json(error.message)
+                        }
+                    }
 
+                    if (service._id == nbooking.selectedServices[nbooking.selectedServices.length - 1]._id) {
+                        saveNewBooking(req, res)
+                    }
+                })
             })
-    } catch (error) {
-        console.log(error)
-        res.status(500).send(error)
-    }
+        } else {
+            saveNewBooking(req, res)
+        }
+    }).catch(err => {
+        res.status(500).json(err.message)
+    })
+
+
+}
+
+function saveNewBooking(req, res) {
+    const status = req.body.isManual ? "Booked" : "Pending"
+    const currentTime = new Date();
+    const timeLeft = currentTime.setMinutes(currentTime.getMinutes() - 30)
+    booking.findOneAndUpdate({ _id: req.params.bookingId },
+        {
+            $set: {
+                status: status,
+                timeLeft: timeLeft
+            }
+        }).then((booking, error) => {
+            if (error) {
+                return res.status(500).json(error.message);
+            }
+
+            res.status(200).json(booking)
+
+        })
 }
 
 module.exports.getBookings = (req, res) => {
@@ -306,7 +298,7 @@ module.exports.getBookings = (req, res) => {
 module.exports.viewBooking = (req, res) => {
     booking.findOne({ _id: req.params.bookingId })
         // .populate({ path: "pageId", model: "Page" })
-        .populate({ path: "pageId", populate: { path: "creator", model: "Account", select: "fullName firstName lastName contactNumber email"}})
+        .populate({ path: "pageId", populate: { path: "creator", model: "Account", select: "fullName firstName lastName contactNumber email" } })
         .populate({ path: "selectedServices.service", model: "Item" })
         .populate({ path: "tourist", model: "Account", select: "firstName lastName email contactNumber address address2 city stateOrProvince country fullName profile" })
         .exec((error, bookings) => {
@@ -331,7 +323,7 @@ module.exports.deleteBooking = (req, res) => {
 module.exports.getNotifications = (req, res) => {
     // const condition = req.user.username ? {} : { receiver: req.user._id }
     notificationGroup.find({ receiver: req.user._id })
-        .populate({ path: 'notifications', model: 'Notification', options: { sort: {updatedAt : -1}} })
+        .populate({ path: 'notifications', model: 'Notification', options: { sort: { updatedAt: -1 } } })
         .populate({ path: 'page', model: 'Page' })
         .populate({ path: 'mainReceiver', model: 'Account' })
         .populate({ path: 'booking', model: 'Booking' })
@@ -413,11 +405,11 @@ module.exports.changeBookingStatus = async (req, res) => {
         }
         if (req.body.updateBookingCount) {
             booking.findById(req.body.booking).then((bookingData, result) => {
-                if (bookingData.status == "Booked" || bookingData.status == "Processing" || bookingData.status == "Pending") {
+                if (bookingData.status == "Booked" || bookingData.status == "Closed" || bookingData.status == "Processing" || bookingData.status == "Pending") {
                     bookingData.selectedServices.forEach(service => {
                         Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, function (error, doc) {
                             if (req.body.increment) {
-                                if (bookingData.status == "Booked") {
+                                if (bookingData.status == "Booked" || bookingData.status == "Closed") {
                                     if (bookingData.isManual) {
                                         doc.manuallyBooked = doc.manuallyBooked + service.quantity;
                                     } else {
@@ -430,6 +422,7 @@ module.exports.changeBookingStatus = async (req, res) => {
                                         return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
                                     } else {
                                         doc.save()
+                                        changeStatus(req, res)
                                     }
                                 } else {
                                     if (!bookingData.isManual) {
@@ -443,6 +436,7 @@ module.exports.changeBookingStatus = async (req, res) => {
                                         return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
                                     } else {
                                         doc.save()
+                                        changeStatus(req, res)
                                     }
                                 }
                             } else {
@@ -458,6 +452,7 @@ module.exports.changeBookingStatus = async (req, res) => {
                                     doc.pending = doc.pending - service.quantity
                                 }
                                 doc.save()
+                                changeStatus(req, res)
                             }
                         })
                     })
@@ -466,24 +461,28 @@ module.exports.changeBookingStatus = async (req, res) => {
         }
         await helper.createNotification(notif)
         await helper.createNotification(notifForAdmin)
-        booking.updateOne(
-            {
-                _id: req.body.booking
-            },
-            {
-                $set: {
-                    "status": req.params.status
-                }
-            }, function (err, response) {
-                if (err) {
-                    return res.status(500).json({ type: "internal error", error: err.message })
-                }
-                res.status(200).json(response);
-            })
+        
     } catch (error) {
         console.log(error);
         res.status(500).json(error.message)
     }
+}
+
+function changeStatus(req, res) {
+    booking.updateOne(
+        {
+            _id: req.body.booking
+        },
+        {
+            $set: {
+                "status": req.params.status
+            }
+        }, function (err, response) {
+            if (err) {
+                return res.status(500).json({ type: "internal error", error: err.message })
+            }
+            res.status(200).json(response);
+        })
 }
 
 module.exports.searchTouristSpot = (req, res) => {
