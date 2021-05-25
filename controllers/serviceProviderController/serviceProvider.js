@@ -74,7 +74,7 @@ module.exports.getServices = (req, res) => {
 
 module.exports.getPageBooking = (req, res) => {
     booking.find({ pageId: req.params.pageId, status: req.params.bookingStatus })
-        .populate({ path: "tourist", model: "Account", select: "firstName lastName profile" })
+        .populate({ path: "tourist", model: "Account", select: "firstName lastName profile fullName" })
         .populate({ path: "pageId", model: "Page" })
         .populate({ path: "selectedServices.service", model: "Item" })
         .sort({ 'updatedAt': -1 })
@@ -95,8 +95,11 @@ module.exports.getNotificationsCount = (req, res) => {
         'receiver': mongoose.Types.ObjectId(req.user._id),
         'opened': false
     }, function (err, docs) {
-        if (err) return res.status(500).json(err.message)
-        res.status(200).json(docs)
+        if (err) {
+            return res.status(500).json(err.message)
+        } else {
+            res.status(200).json(docs)
+        }
     });
 }
 

@@ -143,7 +143,7 @@ module.exports.getAllPendingNotifications = (req, res) => {
         .exec((err, pages) => {
 
             if (err) {
-                res.status(500).json({ error: err.message })
+                return res.status(500).json({ error: err.message })
             }
 
             // if (pages.length) {
@@ -203,7 +203,7 @@ module.exports.setBookingStatus = async(req, res) => {
 
             if (err) {
                 console.log(err)
-                res.status(500).json({ error: err.message })
+                return res.status(500).json({ error: err.message })
             }
             try {
 

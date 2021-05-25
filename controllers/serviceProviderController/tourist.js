@@ -42,7 +42,7 @@ module.exports.getOnlinePages = async (req, res) => {
     { $lookup: { from: 'items', localField: 'services.data', foreignField: '_id', as: 'pageServices' } }
     ]).exec(function (err, pages) {
         if (err) {
-            res.status(500).json(err.message);
+           return res.status(500).json(err.message);
         }
         res.status(200).json(pages)
     })
@@ -469,7 +469,7 @@ module.exports.changeBookingStatus = async (req, res) => {
 }
 
 function changeStatus(req, res) {
-    booking.updateOne(
+    booking.updateOne( 
         {
             _id: req.body.booking
         },
@@ -503,7 +503,9 @@ module.exports.getAllCategories = (req, res) => {
     touristSpotCategory.find({}).populate({
         path: "touristSpots", model: "Page", match: { status: 'Online' }
     }).exec((error, categories) => {
-        if (error) res.status(500).json(error.status)
+        if (error) {
+            return res.status(500).json(error.status)
+        }
         res.status(200).json({ categories: categories })
     })
 }

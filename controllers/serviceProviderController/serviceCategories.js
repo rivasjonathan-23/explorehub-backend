@@ -61,7 +61,7 @@ module.exports.retrieveAllToristSpotCategories = async (req, res) => {
     .populate("addedBy", "fullName firstName lastName")
     .exec((error, categories) => {
       if (error) {
-        res.status(400).json({
+        return res.status(400).json({
           message: "Error in retrieving categories",
           error: error,
         });
