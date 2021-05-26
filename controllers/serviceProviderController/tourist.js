@@ -405,55 +405,60 @@ module.exports.changeBookingStatus = async (req, res) => {
         }
         if (req.body.updateBookingCount) {
             booking.findById(req.body.booking).then((bookingData, result) => {
-                if (bookingData.status == "Booked" || bookingData.status == "Closed" || bookingData.status == "Processing" || bookingData.status == "Pending") {
+                if (bookingData && bookingData.status == "Booked" || bookingData.status == "Closed" || bookingData.status == "Processing" || bookingData.status == "Pending") {
                     if (bookingData.selectedServices.length > 0) {
 
                         bookingData.selectedServices.forEach(service => {
                             Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, function (error, doc) {
-                                if (req.body.increment) {
-                                    if (bookingData.status == "Booked" || bookingData.status == "Closed") {
-                                        if (bookingData.isManual) {
-                                            doc.manuallyBooked = doc.manuallyBooked + service.quantity;
+                                if (doc) {
+
+                                    if (req.body.increment) {
+                                        if (bookingData.status == "Booked" || bookingData.status == "Closed") {
+                                            if (bookingData.isManual) {
+                                                doc.manuallyBooked = doc.manuallyBooked + service.quantity;
+                                            } else {
+                                                doc.booked = doc.booked + service.quantity;
+                                            }
+                                            let quantity = getValue(doc.data, 'quantity')
+                                            quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
+                                            if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
+                                                const name = getValue(doc.data, 'name')
+                                                return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
+                                            } else {
+                                                doc.save()
+                                                changeStatus(req, res)
+                                            }
                                         } else {
-                                            doc.booked = doc.booked + service.quantity;
-                                        }
-                                        let quantity = getValue(doc.data, 'quantity')
-                                        quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
-                                        if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
-                                            const name = getValue(doc.data, 'name')
-                                            return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
-                                        } else {
-                                            doc.save()
-                                            changeStatus(req, res)
+                                            if (!bookingData.isManual) {
+                                                doc.toBeBooked = doc.toBeBooked + service.quantity;
+                                            }
+
+                                            let quantity = getValue(doc.data, 'quantity')
+                                            quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
+                                            if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
+                                                const name = getValue(doc.data, 'name')
+                                                return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
+                                            } else {
+                                                doc.save()
+                                                changeStatus(req, res)
+                                            }
                                         }
                                     } else {
-                                        if (!bookingData.isManual) {
-                                            doc.toBeBooked = doc.toBeBooked + service.quantity;
+                                        if (bookingData.status == "Booked") {
+                                            if (bookingData.isManual) {
+                                                doc.manuallyBooked = doc.manuallyBooked - service.quantity;
+                                            } else {
+                                                doc.booked = doc.booked - service.quantity;
+                                            }
+                                        } else if (bookingData.status == "Processing") {
+                                            doc.toBeBooked = doc.toBeBooked - service.quantity
+                                        } else if (bookingData.status == "Pending") {
+                                            doc.pending = doc.pending - service.quantity
                                         }
-
-                                        let quantity = getValue(doc.data, 'quantity')
-                                        quantity = quantity.length > 0 ? parseInt(quantity[0].data.text) : 0
-                                        if (quantity < (doc.manuallyBooked + doc.booked + doc.toBeBooked + doc.pending)) {
-                                            const name = getValue(doc.data, 'name')
-                                            return res.status(400).json({ type: 'item_availability_issue', message: `${name.length > 0 ? name[0].data.text : 'Untitled Service'} has no more available item!` })
-                                        } else {
-                                            doc.save()
-                                            changeStatus(req, res)
-                                        }
+                                        doc.save()
+                                        changeStatus(req, res)
                                     }
                                 } else {
-                                    if (bookingData.status == "Booked") {
-                                        if (bookingData.isManual) {
-                                            doc.manuallyBooked = doc.manuallyBooked - service.quantity;
-                                        } else {
-                                            doc.booked = doc.booked - service.quantity;
-                                        }
-                                    } else if (bookingData.status == "Processing") {
-                                        doc.toBeBooked = doc.toBeBooked - service.quantity
-                                    } else if (bookingData.status == "Pending") {
-                                        doc.pending = doc.pending - service.quantity
-                                    }
-                                    doc.save()
                                     changeStatus(req, res)
                                 }
                             })
@@ -462,6 +467,8 @@ module.exports.changeBookingStatus = async (req, res) => {
                         changeStatus(req, res)
                     }
 
+                } else {
+                    return res.status(404).json({message: "booking not found"})
                 }
             })
         }
