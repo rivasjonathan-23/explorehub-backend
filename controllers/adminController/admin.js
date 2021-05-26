@@ -60,7 +60,7 @@ module.exports.pusher = (req, res) => {
 
 module.exports.getAllBookings = (req, res) => {
     booking.find({ status: req.params.bookingStatus })
-        .populate({ path: "tourist", model: "Account", select: "fullName firstName lastName address contactNumber email profile" })
+        .populate({ path: "tourist", model: "Account", select: "fullName firstName lastName address address2 city stateOrProvince country contactNumber email profile" })
         .populate({ path: "selectedServices.service", model: "Item" })
         .populate({ path: "pageId", populate: { path: "creator", model: "Account" } })
         .sort({ 'createdAt': 1 })
