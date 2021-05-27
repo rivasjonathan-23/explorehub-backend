@@ -49,7 +49,7 @@ const multerMid = multer({
 
 app.use(multerMid.single('image'))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use("/api", require("./router/mainRouter"));
 
@@ -65,7 +65,7 @@ const server = app.listen(port, () => {
 let io = require('socket.io')(server, {
 
     cors: {
-        origin: ["http://localhost:4200",'http://localhost', 'http://localhost:3000', 'capacitor://localhost', 'ionic://localhost', "https://3xplore-hub-admin.vercel.app"],
+        origin: ["http://localhost:4200", 'http://localhost', 'http://localhost:3000', 'capacitor://localhost', 'ionic://localhost', "https://3xplore-hub-admin.vercel.app", "https://admin-frontend-lyart.vercel.app"],
         methods: ["GET", "POST"]
     }
 });
