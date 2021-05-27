@@ -31,6 +31,8 @@ module.exports.findAccountById = async function (req, res) {
       contactNumber: userAccount.contactNumber,
       codeSent: req.codeSent,
       email: userAccount.email,
+      firstName: userAccount.firstName,
+      lastName: userAccount.lastName,
       from_wherer: "find account",
       fullName: userAccount.fullName,
     });
