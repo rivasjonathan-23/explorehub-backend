@@ -8,8 +8,8 @@ const Service = new Schema({
   styles: { type: Array, required: false },
   data: [{ type: Schema.Types.ObjectId, required: true, ref: "Item" }],
   required: {type: Boolean, required: false , default: false},
-  selectMultiple: {type: Boolean, required: false , default: false},
-  inputQuantity: {type: Boolean, required: false , default: false},
+  selectMultiple: {type: Boolean, required: false , default: true},
+  inputQuantity: {type: Boolean, required: false , default: true},
   default: { type: Boolean, required: false, default: false }
 });
 
