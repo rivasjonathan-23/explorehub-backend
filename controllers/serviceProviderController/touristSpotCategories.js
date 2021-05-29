@@ -44,9 +44,9 @@ module.exports.addDefaultCategories = async (req, res) => {
     if (categories.length == 0) {
       const defaults = [
         { name: "Island Hopping" },
-        { name: "Beach" },
-        { name: "Resort" },
-        { name: "Mountains and Peaks" }
+        { name: "Beach Resort" },
+        { name: "Mountain Resort" },
+        // { name: "Mountains and Peaks" }
       ]
 
       defaults.forEach(async (category) => {

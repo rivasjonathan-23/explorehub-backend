@@ -40,7 +40,8 @@ module.exports.addDefaultCategories = async (req, res) => {
         { name: "Restaurant" },
         { name: "Transportation" },
         { name: "Lodging" },
-        { name: "Touring" }
+        { name: "Touring" },
+        { name: "Boat Reservation" }
       ]
 
       defaults.forEach(async (category) => {
