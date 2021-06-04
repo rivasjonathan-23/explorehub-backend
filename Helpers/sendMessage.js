@@ -1,14 +1,15 @@
-const Nexmo = require("nexmo");
+// const Nexmo = require("nexmo");
+const Vonage = require('@vonage/server-sdk')
 
 module.exports = (sender, number, message) => {
   return new Promise((resolve, reject) => {
     try {
-      const nexmo = new Nexmo({
+      const nexmo = new Vonage({
         apiKey: process.env.NEXMO_KEY,
         apiSecret: process.env.NEXMO_SECRET,
       });
 
-      const from = "Rivas";
+      const from = "Explorehub";
       const to = parseInt(number);
       const text = message;
 
