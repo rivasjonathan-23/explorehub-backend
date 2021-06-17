@@ -257,7 +257,8 @@ module.exports.submitBooking = async (req, res) => {
 }
 
 function saveNewBooking(req, res) {
-    const status = req.body.isManual ? "Booked" : "Pending"
+    // const status = req.body.isManual ? "Booked" : "Pending"
+    const status = "Booked" 
     const currentTime = new Date();
     const timeLeft = currentTime.setMinutes(currentTime.getMinutes() - 30)
     booking.findOneAndUpdate({ _id: req.params.bookingId },

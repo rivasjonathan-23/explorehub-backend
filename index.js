@@ -15,8 +15,6 @@ mongoose.connect(dbConfig.online_db, {
     useFindAndModify: false,
 });
 
-
-
 var db = mongoose.connection;
 db.on("connected", () => {
     console.log("connected to database" + dbConfig.online_db);
