@@ -11,6 +11,7 @@ const Page = require("../../models/page");
 const account = require("../../models/account");
 const bcrypt = require("bcryptjs");
 const { saveImageToCloud } = require("../../Helpers/saveImageToCloud");
+const { PageDocumentsModel } = require("../../models/pageDocuments");
 
 module.exports.addComponent = (req, res) => {
   // const Pages = req.params.pageType == "service" ? servicePage : touristSpotPage
@@ -593,6 +594,7 @@ module.exports.retrievePage = (req, res) => {
   Page.findOne({ _id: req.params.pageId })
     .populate({ path: "services.data", model: "Item" })
     .populate({ path: "hostTouristSpot", model: "Page" })
+    .populate({ path: "pageDocuments", model: "PageDocuments" })
     .exec((error, page) => {
       if (error) {
         return res.status(500).json({
@@ -656,4 +658,36 @@ module.exports.editServiceSettings = (req, res) => {
     }).catch(error => {
       res.status(500).json({ type: 'internal_error!', error: error.message });
     })
+}
+
+module.exports.addPageDocuments = async (req, res) => {
+  try {
+    PageDocumentsModel.findOne({pageId: mongoose.Types.ObjectId(req.params.pageId)}, async function (error, doc) {
+      const savedImage =  await saveImageToCloud(req.file);
+      if (!doc) {
+        const docs = {}
+        if (req.params.type == "businessPermit") docs["businessPermit"] = savedImage
+        if (req.params.type == "ownerValidId") docs["ownerValidId"] = savedImage
+        const newDocuments = new PageDocumentsModel({pageId: mongoose.Types.ObjectId(req.params.pageId), ...docs})
+        await newDocuments.save()
+        Page.updateOne(
+          { "_id": req.params.pageId },
+          { $set: { "pageDocuments": newDocuments._id}}
+          )
+          .then(result => {
+            res.status(200).json(savedImage);
+          }).catch(error => {
+            res.status(500).json({ type: 'internal_error!', error: error.message });
+        })
+      } else {
+        if (req.params.type == "businessPermit")  doc.businessPermit = savedImage
+        if (req.params.type == "ownerValidId") doc.ownerValidId = savedImage
+        await doc.save()
+        res.status(200).json(savedImage);
+      }
+    })
+  } catch (erro) {
+    console.log(erro.message);
+    res.status(500).json(erro)
+  }
 }

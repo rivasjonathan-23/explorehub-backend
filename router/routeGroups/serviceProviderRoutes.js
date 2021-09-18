@@ -33,6 +33,7 @@ router.post("/saveInputField/:pageId/:grandParentId/:parentId/:pageType", pageCr
 router.put("/editInputField/:pageId/:grandParentId/:parentId/:pageType", pageCreation.editInputField)
 router.delete("/deletePage/:pageId/:pageType", pageCreation.deletePage)
 router.post("/editServiceSettings", pageCreation.editServiceSettings)
+router.post("/addPageDocuments/:pageId/:type", pageCreation.addPageDocuments)
 
 router.get("/retrieveAllTouristSpotsPage", pageCreation.retrieveAllTouristSpotsPage)
 router.post("/createPage/:pageType", pageCreation.createPage)
