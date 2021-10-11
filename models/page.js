@@ -16,6 +16,7 @@ const Page = new Schema(
     bookingInfo: [Component],
     hidePage:{type: Boolean, required: false, default: false},
     visits: {type: Number, required: false, default: 0},
+    bookings: [{type: Schema.Types.ObjectId, ref: 'Booking', required: false}],
     beBackOn: {type: String, required: false},
     initialStatus: { type: String, enum: ['Approved', 'Declined', 'Pending'], required: false, default: 'Pending' },
     status: { type: String, enum: ['Unfinished', 'Pending', 'Processing', 'Online', 'Rejected', 'Not Operating'], required: false, default: 'Unfinished' }

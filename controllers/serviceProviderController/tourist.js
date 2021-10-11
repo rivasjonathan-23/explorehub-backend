@@ -65,7 +65,10 @@ module.exports.viewPage = (req, res) => {
             if (!page) {
                 return res.status(404).json({ type: "not_found" })
             }
-            res.status(200).json(page);
+            Page.findByIdAndUpdate(req.params.pageId, {$set: {visits: page.visits? page.visits+1 : 1}}, function(error, _) {
+                if (error) return res.status(500).json(error.message)
+                res.status(200).json(page);
+            })
         })
 }
 
@@ -92,7 +95,6 @@ module.exports.viewItems = async (req, res) => {
 
 module.exports.createBooking = async (req, res) => {
     try {
-        console.log("req.body: ", req.body)
         if (req.params.bookingId == "create_new") {
             const isManual = req.body.isManual
             const newBooking = new booking({ tourist: req.user._id, pageId: req.params.pageId, isManual: isManual == true, bookingInfo: [], selectedServices: [], bookingType: req.params.pageType });
@@ -101,7 +103,11 @@ module.exports.createBooking = async (req, res) => {
                 newBooking.selectedServices.push(selectedService)
             }
             const savedBooking = await newBooking.save();
-            res.status(200).json(savedBooking);
+
+            Page.findByIdAndUpdate(req.params.pageId, {$push: {bookings: savedBooking._id}}, function(err, _) {
+                if (err) res.status(500).json(err.message)
+                res.status(200).json(savedBooking);
+            })
         } else {
             const selectedService = new selectedServiceModel(req.body.firstService);
             booking.updateOne({ _id: req.params.bookingId },
