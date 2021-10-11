@@ -173,6 +173,39 @@ module.exports.getAllPendingNotifications = (req, res) => {
     //     })
 }
 
+module.exports.getPagesList = (req, res) => {
+    let cond = { $or: [{ status: "Pending" }, { status: "Processing" }] }
+    if (req.params.pageStatus == "Online") {
+        cond = { $or: [{ status: req.params.pageStatus }, { status: "Not Operating" }] }
+    }
+    Page.find(cond)
+        .populate({ path: "hostTouristSpot", model: "Page" })
+        .populate({ path: "creator", model: "Account", select: "fullName firstName lastName profile" })
+        .populate({ path: "services.data", model: "Item" })
+        .exec(async (err, pages) => {
+
+            if (err) {
+                return res.status(500).json({ error: err.message })
+            }
+            
+            const mapping = () => {
+                return new Promise((resolve) => {
+
+                    resolve(pages.map( async(page) => {
+                        const bookings = await booking.find({pageId: mongoose.Types.ObjectId(page._id)}, "_id")
+                        console.log("Page: ", bookings)
+                        console.log("page data:======================================================================= ",{page: page._doc.pageType, bookings: bookings})
+                        page._doc['bookings'] = bookings
+                        return page
+                    }))
+                })
+            }
+            pages = await mapping()
+            console.log('PAGES1: ', pages)
+            res.status(200).json(pages)
+        })
+}
+
 
 
 module.exports.setBookingStatus = async(req, res) => {
