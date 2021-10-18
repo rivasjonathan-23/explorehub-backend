@@ -360,3 +360,11 @@ module.exports.getNotificationCount = (req, res) => {
         res.status(200).json(docs)
     })
 }
+
+module.exports.getPageBookings = (req, res) => {
+    booking.find({pageId: mongoose.Types.ObjectId(req.params.pageId)}).then(bookings => {
+        res.status(200).json(bookings)
+    }).catch(error => {
+        res.status(500).json(error)
+    })
+}

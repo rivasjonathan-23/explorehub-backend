@@ -7,6 +7,7 @@ router.post('/auth', admin.pusher);
 router.get('/getAllBookings/:bookingStatus', admin.getAllBookings);
 router.get('/getAllPendingNotifications/:pageStatus', admin.getAllPendingNotifications);
 router.get('/getPagesList/:pageStatus', admin.getPagesList);
+router.get('/getPageBookings/:pageId', admin.getPageBookings);
  
 
 // router.get('/getOnProcessBooking/:bookingId', admin.getOnProcessBooking)
