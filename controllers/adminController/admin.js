@@ -362,7 +362,9 @@ module.exports.getNotificationCount = (req, res) => {
 }
 
 module.exports.getPageBookings = (req, res) => {
-    booking.find({pageId: mongoose.Types.ObjectId(req.params.pageId)}).then(bookings => {
+    let cond = {}
+    if (req.params.pageId != "allBookings") cond = {pageId: mongoose.Types.ObjectId(req.params.pageId)}
+    booking.find(cond).then(bookings => {
         res.status(200).json(bookings)
     }).catch(error => {
         res.status(500).json(error)
