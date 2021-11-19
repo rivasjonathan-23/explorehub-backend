@@ -263,8 +263,8 @@ module.exports.submitBooking = async (req, res) => {
 }
 
 function saveNewBooking(req, res) {
-    // const status = req.body.isManual ? "Booked" : "Pending"
-    const status = "Booked" 
+    const status = req.body.isManual ? "Booked" : "Pending"
+    // const status = "Booked" 
     const currentTime = new Date();
     const timeLeft = currentTime.setMinutes(currentTime.getMinutes() - 30)
     booking.findOneAndUpdate({ _id: req.params.bookingId },
@@ -416,11 +416,13 @@ module.exports.changeBookingStatus = async (req, res) => {
                     if (bookingData.selectedServices.length > 0) {
 
                         bookingData.selectedServices.forEach(service => {
-                            Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, function (error, doc) {
+                            Item.findOne({ _id: mongoose.Types.ObjectId(service.service) }, async function (error, doc) {
+                                try {
+
                                 if (doc) {
 
                                     if (req.body.increment) {
-                                        if (bookingData.status == "Booked" || bookingData.status == "Closed") {
+                                        if (bookingData.status == "Booked" || bookingData.status == "Closed" || bookingData.status == "Processing") {
                                             if (bookingData.isManual) {
                                                 doc.manuallyBooked = doc.manuallyBooked + service.quantity;
                                             } else {
@@ -462,12 +464,17 @@ module.exports.changeBookingStatus = async (req, res) => {
                                         } else if (bookingData.status == "Pending") {
                                             doc.pending = doc.pending - service.quantity
                                         }
-                                        doc.save()
+                                        await doc.save()
                                         changeStatus(req, res)
                                     }
                                 } else {
                                     changeStatus(req, res)
                                 }
+                            } catch(error) {
+                                console.log("Error: ", error)
+                                return res.status(500).json(error)
+                            }
+
                             })
                         })
                     } else {
@@ -477,6 +484,9 @@ module.exports.changeBookingStatus = async (req, res) => {
                 } else {
                     return res.status(404).json({message: "booking not found"})
                 }
+            }).catch(error => {
+                console.log("Error: ",error)
+                return res.status(500).json(error)
             })
         }
         await helper.createNotification(notif)
@@ -484,7 +494,7 @@ module.exports.changeBookingStatus = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json(error.message)
+        return res.status(500).json(error.message)
     }
 }
 
