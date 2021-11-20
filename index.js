@@ -63,7 +63,7 @@ const server = app.listen(port, () => {
 let io = require('socket.io')(server, {
 
     cors: {
-        origin: ["http://localhost:4200", 'http://localhost', 'http://localhost:3000', 'http://localhost:63597', 'capacitor://localhost', 'ionic://localhost', "https://3xplore-hub-admin.vercel.app", "https://explorehub-admin.vercel.app/", "https://admin-frontend-lyart.vercel.app"],
+        origin: ["http://localhost:4200", 'http://localhost', 'http://localhost:3000', 'http://localhost:63597', 'capacitor://localhost', 'ionic://localhost', "https://3xplore-hub-admin.vercel.app", "https://explorehub-admin-lizvy3b64-rivasjonathan-23.vercel.app/", "https://admin-frontend-lyart.vercel.app"],
         methods: ["GET", "POST"]
     }
 });
