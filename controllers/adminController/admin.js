@@ -140,6 +140,7 @@ module.exports.getAllPendingNotifications = (req, res) => {
         .populate({ path: "hostTouristSpot", model: "Page" })
         .populate({ path: "creator", model: "Account", select: "fullName firstName lastName profile" })
         .populate({ path: "services.data", model: "Item" })
+        .populate({ path: "pageDocuments", model: "PageDocuments" })
         .exec((err, pages) => {
 
             if (err) {
