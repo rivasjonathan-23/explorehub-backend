@@ -75,7 +75,7 @@ let io = require('socket.io')(server, {
             "https://explorehub-admin-ocvzocyzp-rivasjonathan-23.vercel.app",
             "https://explorehub-admin.vercel.app/",
             "https://explorehub-admin-rivasjonathan-23.vercel.app",
-            "explorehub-admin-git-main-rivasjonathan-23.vercel.app",
+            "https://explorehub-admin-git-main-rivasjonathan-23.vercel.app",
         ],
         methods: ["GET", "POST"]
     }
