@@ -14,6 +14,7 @@ const booking = new Schema(
         bookingType: { type: String, required: true },
         isManual: { type: Boolean, require: false, default: false },
         timeLeft: { type: Date, required: false },
+        rejectionReason: {type: String, required: false},
         messaged: { type: Boolean, required: false, defualt: false },
         status: { type: String, enum: ['Pending', 'Cancelled', 'Booked', "Closed", 'Rejected', 'Unfinished'], required: false, default: 'Unfinished' }
     },

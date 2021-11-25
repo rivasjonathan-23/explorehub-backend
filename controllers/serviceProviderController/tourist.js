@@ -499,13 +499,15 @@ module.exports.changeBookingStatus = async (req, res) => {
 }
 
 function changeStatus(req, res) {
+    const reason = req.body.rejectionReason ? req.body.rejectionReason: ""
     booking.updateOne(
         {
             _id: req.body.booking
         },
         {
             $set: {
-                "status": req.params.status
+                "status": req.params.status,
+                "rejectionReason": req.body.rejectionReason
             }
         }, function (err, response) {
             if (err) {

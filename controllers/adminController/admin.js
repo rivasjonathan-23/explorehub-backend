@@ -132,7 +132,7 @@ module.exports.getAllBookings = (req, res) => {
 }
 
 module.exports.getAllPendingNotifications = (req, res) => {
-    let cond = { $or: [{ status: "Pending" }, { status: "Processing" }] }
+    let cond = { $or: [{ status: "Pending" }, { status: "Processing" }, { status: "Rejected" }] }
     if (req.params.pageStatus == "Online") {
         cond = { $or: [{ status: req.params.pageStatus }, { status: "Not Operating" }] }
     }
