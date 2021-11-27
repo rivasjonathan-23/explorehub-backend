@@ -189,14 +189,14 @@ module.exports.getPagesList = (req, res) => {
             if (err) {
                 return res.status(500).json({ error: err.message })
             }
-            
+
             res.status(200).json(pages)
         })
 }
 
 
 
-module.exports.setBookingStatus = async(req, res) => {
+module.exports.setBookingStatus = async (req, res) => {
 
 
     if (req.body.servicesToUpdate) {
@@ -205,7 +205,7 @@ module.exports.setBookingStatus = async(req, res) => {
                 _id: mongoose.Types.ObjectId(service._id)
             }, {
                 $set: service.bookingData
-            }, function(error, result) {
+            }, function (error, result) {
                 if (error) {
                     console.log(error)
                     return res.status(500).json(error.message);
@@ -364,10 +364,12 @@ module.exports.getNotificationCount = (req, res) => {
 
 module.exports.getPageBookings = (req, res) => {
     let cond = {}
-    if (req.params.pageId != "allBookings") cond = {pageId: mongoose.Types.ObjectId(req.params.pageId)}
-    booking.find(cond).then(bookings => {
-        res.status(200).json(bookings)
-    }).catch(error => {
-        res.status(500).json(error)
-    })
+    if (req.params.pageId != "allBookings") cond = { pageId: mongoose.Types.ObjectId(req.params.pageId) }
+    booking.find(cond).populate({ path: "tourist", model: "Account", select: "firstName lastName address address2 city stateOrProvince country profile" })
+        .exec((error, bookings) => {
+            if (error) {
+                res.status(500).json(error)
+            }
+            res.status(200).json(bookings)
+        })
 }
